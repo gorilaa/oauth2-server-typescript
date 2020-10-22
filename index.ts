@@ -4,6 +4,7 @@ import OAuth2Server = require("oauth2-server");
 import JWT = require("jsonwebtoken");
 import fs = require("fs");
 import crypto = require("crypto-random-string");
+import { exec, spawn } from "child_process";
 
 // rest of the code remains same
 const PORT = 3000;
@@ -39,23 +40,14 @@ const getUserById = (userId: string) => {
   // tslint:disable-next-line: no-null-keyword
   return null;
 };
+
 const oauth2Model: OAuth2Server.PasswordModel = {
   generateAccessToken: async (
     client: OAuth2Server.Client,
     user: OAuth2Server.User,
     scope: string
   ): Promise<string> => {
-    const publicKey = "oauth-public.key";
-    const privateKey = "oauth-private.key";
-
-    // if (!fs.existsSync(publicKey)) {
-    //   fs.writeFileSync(publicKey, generateRsaKey().public);
-
-    //   fs.writeFileSync(privateKey, generateRsaKey().private);
-    // }
-
     let token: string | PromiseLike<string> | undefined;
-    const exp = new Date();
 
     const privateKEY = fs.readFileSync("./oauth-private.key").toString();
 
@@ -107,8 +99,6 @@ const oauth2Model: OAuth2Server.PasswordModel = {
     client: OAuth2Server.Client,
     user: OAuth2Server.User
   ): Promise<OAuth2Server.Token> => {
-    console.log(token);
-
     const publicKEY = fs.readFileSync("./oauth-public.key", "utf8");
 
     const { accessToken } = token;
@@ -146,8 +136,6 @@ const oauth2Model: OAuth2Server.PasswordModel = {
     });
 
     console.log("GET ACCESS TOKEN");
-    console.log(accessToken);
-
     return {
       accessToken,
       accessTokenExpiresAt: new Date("2020-11-20T18:12:04.914Z"),
