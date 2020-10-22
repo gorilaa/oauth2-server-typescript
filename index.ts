@@ -4,12 +4,9 @@ import OAuth2Server = require("oauth2-server");
 import JWT = require("jsonwebtoken");
 import fs = require("fs");
 import crypto = require("crypto-random-string");
-import { exec, spawn } from "child_process";
 
 // rest of the code remains same
 const PORT = 3000;
-const JWT_ACCESS_TOKEN_EXPIRY_SECONDS = 60 * 60 * 24 * 30; // 1 Month
-const JWT_REFRESH_TOKEN_EXPIRY_SECONDS = 60 * 60 * 24 * 60; // 2 Month
 
 // In-memory datastores
 var oauthClients = [
@@ -221,35 +218,11 @@ app.all(
   }
 );
 
-app.post("/oauth2/authorize", (req, res) => {
-  const request = new OAuth2Server.Request(req);
-  const response = new OAuth2Server.Response(res);
-
-  oauth2Server
-    .authorize(request, response)
-    .then((success: OAuth2Server.AuthorizationCode) => {
-      res.json(success);
-    })
-    .catch((err: any) => {
-      res.status(err.code || 500).json(err);
-    });
-});
-
 app.get(
   "/secure",
   authenticate(),
   (req: express.Request, res: express.Response, next: express.NextFunction) => {
     res.json({ message: "Secure data" });
-  }
-);
-
-app.get(
-  "/profile",
-  authenticate({ scope: "profile" }),
-  (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    res.json({
-      profile: req,
-    });
   }
 );
 
